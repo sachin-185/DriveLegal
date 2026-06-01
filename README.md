@@ -217,14 +217,7 @@ aichatbot/
 
 ---
 
-## 👥 Tech Runner Team
-*   **Sachin S** — Team Leader
-*   **Srikanth K**
-*   **Thineka M**
-*   **Umadevadharshini B**
-*   **Swetha M**
 
----
 
 ## 🔒 Security & Privacy
 
