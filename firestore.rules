@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allows any authenticated user to create or read user documents, and update/delete their own document
+    match /users/{userId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if request.auth.uid == userId;
+
+      // Allows authenticated users to interact with their own notes and details subcollections
+      match /notes/{noteId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+      
+      match /badges/{badgeId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      match /quiz_history/{historyId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+  }
+}

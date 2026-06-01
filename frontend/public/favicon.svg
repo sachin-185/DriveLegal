@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bg-glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#060913" stop-opacity="0.9" />
+    </radialGradient>
+
+    <!-- Brand Neon Gradients -->
+    <linearGradient id="primary-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <linearGradient id="secondary-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+
+    <linearGradient id="border-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <!-- Glow Filter for Vector Elements -->
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer circular boundary ring -->
+  <circle cx="50" cy="50" r="47" stroke="url(#border-glow)" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.3" />
+
+  <!-- Shield Shape Background -->
+  <path d="M50 8 C50 8 78 20 78 48 C78 70 50 88 50 88 C50 88 22 70 22 48 C22 20 50 8 50 8 Z" fill="url(#bg-glow)" stroke="url(#primary-neon)" stroke-width="2.5" stroke-linejoin="round" filter="url(#neon-glow)" />
+  
+  <!-- Outer Shield Accents -->
+  <path d="M50 14 C50 14 72 24 72 48 C72 66 50 81 50 81 C50 81 28 66 28 48 C28 24 50 14 50 14 Z" stroke="url(#secondary-neon)" stroke-width="1" stroke-linejoin="round" opacity="0.5" />
+
+  <!-- 1. Road/Highway Receding Perspective -->
+  <g opacity="0.75">
+    <!-- Left Lane Border -->
+    <line x1="33" y1="72" x2="47" y2="46" stroke="url(#secondary-neon)" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Right Lane Border -->
+    <line x1="67" y1="72" x2="53" y2="46" stroke="url(#secondary-neon)" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Lane Divider (Dashed) -->
+    <line x1="50" y1="72" x2="50" y2="48" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 4" stroke-linecap="round" opacity="0.8" />
+  </g>
+
+  <!-- 2. Steering Wheel Arc Overlay -->
+  <path d="M30 62 A 24 24 0 0 0 70 62" stroke="url(#primary-neon)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4" />
+
+  <!-- 3. Legal Scales of Justice Superimposed -->
+  <g filter="url(#neon-glow)">
+    <!-- Central Pillar / Standard -->
+    <line x1="50" y1="26" x2="50" y2="70" stroke="url(#primary-neon)" stroke-width="3" stroke-linecap="round" />
+    <!-- Pillar Pedestal Base -->
+    <path d="M44 70 H56 C56 70 55 73 50 73 C45 73 44 70 44 70 Z" fill="url(#primary-neon)" stroke="url(#primary-neon)" stroke-width="1" />
+    
+    <!-- Balance Beam (Horizontal Crossbar) -->
+    <line x1="30" y1="34" x2="70" y2="34" stroke="url(#primary-neon)" stroke-width="3.5" stroke-linecap="round" />
+    <!-- Center needle indicator -->
+    <path d="M50 34 L48 24 H52 L50 34 Z" fill="url(#secondary-neon)" />
+
+    <!-- Left Hanging Scale Plate -->
+    <!-- Hanging Strings -->
+    <line x1="30" y1="34" x2="23" y2="52" stroke="#818cf8" stroke-width="1" />
+    <line x1="30" y1="34" x2="37" y2="52" stroke="#818cf8" stroke-width="1" />
+    <!-- Scale Plate -->
+    <path d="M21 52 H39 C39 52 38 56 30 56 C22 56 21 52 21 52 Z" fill="url(#secondary-neon)" stroke="url(#secondary-neon)" stroke-width="1.5" stroke-linejoin="round" />
+
+    <!-- Right Hanging Scale Plate -->
+    <!-- Hanging Strings -->
+    <line x1="70" y1="34" x2="63" y2="52" stroke="#818cf8" stroke-width="1" />
+    <line x1="70" y1="34" x2="77" y2="52" stroke="#818cf8" stroke-width="1" />
+    <!-- Scale Plate -->
+    <path d="M61 52 H79 C79 52 78 56 70 56 C62 56 61 52 61 52 Z" fill="url(#secondary-neon)" stroke="url(#secondary-neon)" stroke-width="1.5" stroke-linejoin="round" />
+  </g>
+
+  <!-- Decorative Safety Stars / Compliance Sparks -->
+  <path d="M50 20 L51.5 22.5 L54 23 L52 24.5 L52.5 27 L50 25.5 L47.5 27 L48 24.5 L46 23 L48.5 22.5 Z" fill="#eab308" filter="url(#neon-glow)" />
+</svg>

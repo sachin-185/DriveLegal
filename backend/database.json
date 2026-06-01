@@ -1,0 +1,41 @@
+{
+  "users": [
+    {
+      "id": "DL-405818",
+      "fullName": "Diagnostic Test",
+      "username": "test_driver",
+      "email": "test@drivelegal.org",
+      "licenseNo": "DL-999999999",
+      "region": "IN",
+      "password": "password123",
+      "safetyScore": 100,
+      "badges": [],
+      "registeredAt": "2026-05-31T12:06:24.394Z"
+    },
+    {
+      "id": "DL-546788",
+      "fullName": "SACHIN S",
+      "username": "s@gmail.com",
+      "email": "svsachinsd@gmail.com",
+      "licenseNo": "DL 3534656",
+      "region": "IN",
+      "password": "sachin",
+      "safetyScore": 100,
+      "badges": [],
+      "registeredAt": "2026-05-31T13:07:44.632Z"
+    },
+    {
+      "id": "DL-917798",
+      "fullName": "S",
+      "username": "f@gmail.com",
+      "email": "sv@gmail.com",
+      "licenseNo": "DL234",
+      "region": "IN",
+      "password": "sac",
+      "safetyScore": 92,
+      "badges": [],
+      "registeredAt": "2026-05-31T13:37:24.692Z"
+    }
+  ],
+  "quiz_history": []
+}
