@@ -28,8 +28,8 @@ DriveLegal modernizes traffic compliance and safety education by providing:
 
 ### 🤖 Core Intelligence (Local NLP Engine)
 *   **Offline Intent Classification** — Rules-based parser classifies user intent (fines, emergency, quiz) in milliseconds entirely in the browser.
-*   **Quantum-Inspired Superposition Filter** — A unique algorithm in `nlpEngine.js` that maps generative text as a superposition of semantic possibilities, collapsing them against verified database states to completely eliminate numerical hallucinations.
-*   **Grounded RAG Extension** — When online, queries are routed through a Express-based ChromaDB vector database and Hugging Face's Qwen 2.5 72B Instruct model for context-rich natural language answers.
+*   **Quantum-Inspired Superposition Filter (`applyQuantumStateCollapse`)** — A custom algorithm implemented in `nlpEngine.js` that treats LLM generative responses as a superposition of numerical eigenvalues (fines, points, codes). It intercepts raw text and collapses any unverified/hallucinated figures to the nearest verified database fact before displaying them to the user.
+*   **Grounded RAG Extension** — When online, queries are routed through an Express-based ChromaDB vector database and Hugging Face's Qwen 2.5 72B Instruct model for context-rich natural language answers.
 
 ### 🚗 Agentic Vehicle Registry Lookup
 *   **Active Tool-use Integration** — Chatbot recognizes license plates (e.g., `DL-03-A-1234`, `CA-99A-4040`, `UK-LX-7777`) and automatically queries a secure database.
@@ -61,6 +61,7 @@ DriveLegal modernizes traffic compliance and safety education by providing:
 *   **Node.js & Express.js** — Secure middleware API router.
 *   **ChromaDB** — Scalable vector database powering semantic search and Retrieval-Augmented Generation (RAG).
 *   **Hugging Face Serverless API** — Generative AI model hosting for conversational fallback (Qwen 2.5 72B Instruct).
+*   **Quantum-Inspired State-Collapse Filter** — Algorithmic alignment layer integrated into the Express middleware to filter out LLM numerical hallucinations in real-time.
 *   **Concurrently** — Script orchestration to boot the full monorepo stack with a single command.
 
 ---
