@@ -218,7 +218,22 @@ aichatbot/
 
 ---
 
+## 📊 Databases & Data Management
+**DriveLegal** utilizes a hybrid database architecture optimized for high-performance offline calculations with scalable cloud synchronization when online:
 
+### 1. ChromaDB (Vector Database)
+*   **Purpose:** Powers semantic Retrieval-Augmented Generation (RAG) for the AI chat agent.
+*   **Details:** Stores and indexes statutory traffic laws, compliance regulations, and localized motor vehicle acts. When online, the backend Express API runs vector search queries against ChromaDB collections to supply high-fidelity legal context.
+
+### 2. Firebase (NoSQL Database & Auth)
+*   **Purpose:** Manages driver authentication and stores user scorecards.
+*   **Details:** Integrates the Firebase SDK on the client side to secure driver accounts. Synchronizes safety scores, driving offense demerit counts, current quiz streaks, and collectible safety badge accomplishments across sessions.
+
+### 3. Local Static Rules Database (`lawDatabase.js`)
+*   **Purpose:** Enforces 100% offline-first fine computation and emergency lookup.
+*   **Details:** An optimized, highly structured JSON-like local dictionary loaded directly inside both the frontend and backend contexts. It houses precise demerit rates, compounding fine algorithms, and national emergency contacts for multiple regions (India, United States, and United Kingdom) to guarantee driver safety checks are accessible on remote highways with zero network coverage.
+
+---
 
 ## 🔒 Security & Privacy
 
