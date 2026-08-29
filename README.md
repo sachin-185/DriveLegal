@@ -1,4 +1,4 @@
-# ⚖️ DriveLegal — Offline-First AI Compliance & Road Safety Companion
+# ⚖️ DriveLegal — Offline-First Quantum AI Compliance & Road Safety Companion
 
 ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react) ![Node.js](https://img.shields.io/badge/Node.js-Latest-green?style=for-the-badge&logo=node.js) ![Express.js](https://img.shields.io/badge/Express.js-Latest-lightgrey?style=for-the-badge&logo=express) ![ChromaDB](https://img.shields.io/badge/ChromaDB-Latest-brightgreen?style=for-the-badge&logo=google-cloud) ![Firebase](https://img.shields.io/badge/Firebase-Latest-orange?style=for-the-badge&logo=firebase) ![Vite](https://img.shields.io/badge/Vite-Latest-bd34fe?style=for-the-badge&logo=vite)
 
