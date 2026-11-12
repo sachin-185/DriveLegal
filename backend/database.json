@@ -5,7 +5,7 @@
       "fullName": "Diagnostic Test",
       "username": "test_driver",
       "email": "test@drivelegal.org",
-      "licenseNo": "DL-999999999",
+      "licenseNo": "TN-999999999",
       "region": "IN",
       "password": "password123",
       "safetyScore": 100,
@@ -29,12 +29,24 @@
       "fullName": "S",
       "username": "f@gmail.com",
       "email": "sv@gmail.com",
-      "licenseNo": "DL234",
+      "licenseNo": "TN-999999999",
       "region": "IN",
       "password": "sac",
       "safetyScore": 92,
       "badges": [],
       "registeredAt": "2026-05-31T13:37:24.692Z"
+    },
+    {
+      "id": "DL-292128",
+      "fullName": "SACHIN S",
+      "username": "svsachin2005@gmail.com",
+      "email": "svsachin2005@gmail.com",
+      "licenseNo": "TN-24342434",
+      "region": "IN",
+      "password": "sachin",
+      "safetyScore": 100,
+      "badges": [],
+      "registeredAt": "2026-11-12T10:24:29.405Z"
     }
   ],
   "quiz_history": []

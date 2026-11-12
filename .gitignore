@@ -25,6 +25,14 @@ backend/.vite/
 backend/.env
 frontend/.env
 
+# Excluded documents, papers, presentations, and PDFs
+paper/
+papers/
+presentation/
+presentations/
+docs/
+*.pdf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

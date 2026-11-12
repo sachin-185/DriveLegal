@@ -13,7 +13,6 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleGoogleSignIn = () => {
     setError('');
     setLoading(true);
@@ -24,7 +23,6 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
         cleanAccounts.push(profile);
         localStorage.setItem('drivelegal_users', JSON.stringify(cleanAccounts));
         localStorage.setItem('drivelegal_active_user', JSON.stringify(profile));
-
         onRegisterSuccess(profile);
         setLoading(false);
       })
@@ -34,23 +32,18 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
         setLoading(false);
       });
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
-
     if (!fullName.trim() || !username.trim() || !email.trim() || !licenseNo.trim() || !password) {
       setError('Please fill in all security registration fields.');
       return;
     }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-
     setLoading(true);
-
     const submitOffline = () => {
       try {
         const accounts = JSON.parse(localStorage.getItem('drivelegal_users') || '[]');
@@ -63,24 +56,13 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
           setLoading(false);
           return;
         }
-
         const newUser = {
-          id: 'DL-' + Math.floor(100000 + Math.random() * 900000),
-          fullName: fullName.trim(),
-          username: username.trim(),
-          email: email.trim(),
-          licenseNo: licenseNo.trim().toUpperCase(),
-          region,
-          password,
-          safetyScore: 100,
-          badges: [],
-          registeredAt: new Date().toISOString()
+          id: 'DL-' + Math.floor(100000 + Math.random() * 900000), fullName: fullName.trim(), username: username.trim(), email: email.trim(), licenseNo: licenseNo.trim().toUpperCase(),
+          region, password, safetyScore: 100, badges: [], registeredAt: new Date().toISOString()
         };
-
         accounts.push(newUser);
         localStorage.setItem('drivelegal_users', JSON.stringify(accounts));
         localStorage.setItem('drivelegal_active_user', JSON.stringify(newUser));
-
         onRegisterSuccess(newUser);
         setLoading(false);
       } catch (err) {
@@ -89,29 +71,22 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
         setLoading(false);
       }
     };
-
     fetch('http://localhost:3000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         fullName: fullName.trim(),
-        username: username.trim(),
-        email: email.trim(),
-        licenseNo: licenseNo.trim().toUpperCase(),
-        region,
-        password
+        username: username.trim(), email: email.trim(), licenseNo: licenseNo.trim().toUpperCase(), region, password
       })
     })
       .then(res => res.json())
       .then(data => {
         if (data.success && data.user) {
-          // Double sync to localStorage
           const accounts = JSON.parse(localStorage.getItem('drivelegal_users') || '[]');
           const cleanAccounts = accounts.filter(u => u.username.toLowerCase() !== data.user.username.toLowerCase());
           cleanAccounts.push(data.user);
           localStorage.setItem('drivelegal_users', JSON.stringify(cleanAccounts));
           localStorage.setItem('drivelegal_active_user', JSON.stringify(data.user));
-
           onRegisterSuccess(data.user);
           setLoading(false);
         } else {
@@ -120,26 +95,23 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
         }
       })
       .catch(err => {
-        console.log("Server auth registration offline, routing through offline storage:", err.message);
+        console.info("Server auth registration offline, routing through offline storage:", err.message);
         submitOffline();
       });
   };
-
   return (
-    <div className="glass-panel" style={{ width: '100%', maxWidth: '900px', padding: '10px', position: 'relative', margin: '0 auto' }}>
-      {/* Top glowing brand accent */}
-        <div className="top-brand-accent" />
-
+    <div className="glass-panel" style={{ width: '100%', maxWidth: '950px', padding: '5px', position: 'relative', margin: '0 auto' }}>
+      { }
+      <div className="top-brand-accent" />
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div className="brand-logo-glow" style={{ margin: '0 auto 16px auto', width: '48px', height: '48px' }}>
           <UserPlus size={24} />
         </div>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: '800' }} className="gradient-text">Register Driver</h2>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: '800' }} className="gradient-text">SignUp</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '6px' }}>
-          Initialize your encrypted driving license identity card
+          Register below you enter
         </p>
       </div>
-
       {error && (
         <div className="severity-warning-box danger" style={{ margin: '0 0 16px 0', fontSize: '0.82rem' }}>
           {error}
@@ -147,16 +119,13 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
       )}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {/* Full Name & Username in 2 columns */}
+        { }
         <div className="register-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
               Full Name
             </label>
-            <input
-              type="text"
-              className="chat-input-field"
-              placeholder="Jane Doe"
+            <input type="text" className="chat-input-field" placeholder="Enter your name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               style={{ padding: '8px 12px', fontSize: '0.85rem' }}
@@ -166,18 +135,15 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
             <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
               Username
             </label>
-            <input
-              type="text"
-              className="chat-input-field"
-              placeholder="jane_safety"
+            <input type="text"
+              className="chat-input-field" placeholder="Enter the username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={{ padding: '8px 12px', fontSize: '0.85rem' }}
             />
           </div>
         </div>
-
-        {/* Email */}
+        { }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
             Email Address
@@ -185,14 +151,13 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
           <input
             type="email"
             className="chat-input-field"
-            placeholder="jane.doe@safety.org"
+            placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{ padding: '8px 12px', fontSize: '0.85rem' }}
           />
         </div>
-
-        {/* License Number & Driving Region */}
+        { }
         <div className="register-grid register-grid-mixed">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
@@ -213,18 +178,15 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
             </label>
             <select
               className="location-selector"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              style={{ padding: '7px 10px', fontSize: '0.85rem', width: '100%' }}
+              value="IN"
+              disabled
+              style={{ padding: '7px 10px', fontSize: '0.85rem', width: '100%', opacity: 0.95, cursor: 'default' }}
             >
-              {Object.entries(lawDatabase.countries).map(([code, data]) => (
-                <option key={code} value={code}>{data.name}</option>
-              ))}
+              <option value="IN">India (Motor Vehicles Act)</option>
             </select>
           </div>
         </div>
-
-        {/* Passwords */}
+        { }
         <div className="register-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
@@ -233,7 +195,7 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
             <input
               type="password"
               className="chat-input-field"
-              placeholder="••••••••"
+              placeholder="Enter the password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ padding: '8px 12px', fontSize: '0.85rem' }}
@@ -241,19 +203,18 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-              Confirm
+              Confirm password
             </label>
             <input
               type="password"
               className="chat-input-field"
-              placeholder="••••••••"
+              placeholder="Enter the password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               style={{ padding: '8px 12px', fontSize: '0.85rem' }}
             />
           </div>
         </div>
-
         <button
           type="submit"
           className="glow-btn"
@@ -272,13 +233,11 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
           {loading ? 'Encrypting Credentials...' : 'Create Driver Profile'}
           {!loading && <ArrowRight size={16} />}
         </button>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '14px 0' }}>
           <div style={{ flexGrow: 1, height: '1px', background: 'var(--border-color)' }} />
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>Or</span>
           <div style={{ flexGrow: 1, height: '1px', background: 'var(--border-color)' }} />
         </div>
-
         <button
           type="button"
           className="glow-btn glow-btn-teal"
@@ -303,7 +262,6 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
           Register with Google
         </button>
       </form>
-
       <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.85rem' }}>
         <span style={{ color: 'var(--text-muted)' }}>Already registered? </span>
         <button

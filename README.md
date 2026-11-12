@@ -184,11 +184,13 @@ npm run dev
 aichatbot/
 ├── 📂 backend/                 # Express Middleware Server
 │   ├── 📂 src/
-│   │   ├── 📂 data/            # Static localized laws dictionary
-│   │   │   └── lawDatabase.js
+│   │   ├── 📂 data/            # Localized laws & Tamil Nadu regulations
+│   │   │   ├── lawDatabase.js
+│   │   │   └── tamilNaduRegulations.js
 │   │   └── 📂 utils/           # Database layer & static rule-engine
 │   │       ├── database.js
 │   │       └── nlpEngine.js
+│   ├── database.json           # Local driver records & scorecards
 │   ├── seedChroma.js           # Seeds local/cloud ChromaDB collection
 │   ├── server.js               # Main Express entry point
 │   └── package.json
@@ -197,15 +199,16 @@ aichatbot/
 │   ├── 📂 public/              # Static app assets & logos
 │   └── 📂 src/
 │       ├── 📂 components/      # Modular App Tabs
-│       │   ├── CalculatorTab.js# Compounding fine calculations
+│       │   ├── CalculatorTab.jsx # Compounding fine calculations
 │       │   ├── ChatbotTab.jsx  # Grounded Chat Interface
+│       │   ├── DisputeTab.jsx  # Instant AI Challan Dispute & Proof Verification
 │       │   ├── EmergencyTab.jsx# Dynamic emergency directories
-│       │   ├── ExplorerTab.jsx # Statutes & traffic rule browser
+│       │   ├── ExplorerTab.jsx # Statutes, HSRP rules & traffic guidelines
 │       │   ├── Login.jsx       # Auth layouts
 │       │   ├── Profile.jsx     # Driver scorecard & badge showcase
 │       │   ├── QuizTab.jsx     # Road safety awareness trivia
 │       │   └── Register.jsx
-│       ├── 📂 data/            # Shared static regulations dictionary
+│       ├── 📂 data/            # Shared regulations dictionary & TN datasets
 │       ├── 📂 utils/           # Shared offline NLP Engines & Firebase SDKs
 │       ├── App.css
 │       ├── App.jsx             # Router and tab switcher

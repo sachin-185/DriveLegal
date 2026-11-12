@@ -5,40 +5,32 @@ import { Bike, Car, Truck, Printer, AlertTriangle, FileText, CheckCircle2, Refre
 export default function CalculatorTab({ defaultLocation, onLocationChange }) {
   const [countryCode, setCountryCode] = useState(defaultLocation.country);
   const [stateCode, setStateCode] = useState(defaultLocation.state || '');
-  const [vehicleType, setVehicleType] = useState('car'); // car, motorcycle, commercial
+  const [vehicleType, setVehicleType] = useState('car');
   const [selectedViolations, setSelectedViolations] = useState({});
   const [totalFine, setTotalFine] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
   const [activeCategory, setActiveCategory] = useState('');
-
   const countryData = lawDatabase.countries[countryCode] || lawDatabase.countries.IN;
   const states = countryData.states || {};
 
-  // Sync state drops when country changes
   useEffect(() => {
     const availableStates = Object.keys(states);
     if (availableStates.length > 0) {
-      // Find matching state or default to first
-      const defaultState = availableStates.includes(defaultLocation.state)
-        ? defaultLocation.state
-        : availableStates[0];
+      const defaultState = availableStates.includes(defaultLocation.state) ? defaultLocation.state : availableStates[0];
       setStateCode(defaultState);
     } else {
       setStateCode('');
     }
-    setSelectedViolations({}); // Clear selected violations
+    setSelectedViolations({});
   }, [countryCode]);
 
-  // Handle location update up
   useEffect(() => {
     onLocationChange({ country: countryCode, state: stateCode });
   }, [countryCode, stateCode]);
 
-  // Recalculate totals
   useEffect(() => {
     let fineSum = 0;
     let pointsSum = 0;
-
     Object.entries(selectedViolations).forEach(([ruleId, checked]) => {
       if (!checked) return;
       let foundRule = null;
@@ -49,7 +41,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
           break;
         }
       }
-
       if (foundRule) {
         let fine = foundRule.baseFine;
         if (stateCode && foundRule.stateOverrides && foundRule.stateOverrides[stateCode]) {
@@ -60,16 +51,13 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
           const factor = states[stateCode].factor || 1.0;
           fine = Math.round(fine * factor);
         }
-
         fineSum += fine;
         pointsSum += foundRule.points || 0;
       }
     });
-
     setTotalFine(fineSum);
     setTotalPoints(pointsSum);
   }, [selectedViolations, countryCode, stateCode, vehicleType]);
-
   const handleCheckboxChange = (ruleId, isChecked) => {
     setSelectedViolations(prev => ({
       ...prev,
@@ -86,8 +74,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
   const printReceipt = () => {
     const symbol = countryData.symbol;
     const vehicleLabel = vehicleType === 'car' ? 'Light Motor Vehicle (Car)' : vehicleType === 'motorcycle' ? 'Two-Wheeler (Motorcycle/Scooter)' : 'Medium/Heavy Commercial (Truck/Bus)';
-
-    // Assemble receipts content
     let receiptContent = `
       <html>
         <head>
@@ -110,7 +96,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             <h1>DRIVELEGAL STATUTORY ROAD SAFETY SYSTEM</h1>
             <div>ESTIMATED COMPENSATORY CHALLAN RECEIPT</div>
           </div>
-          
           <div class="meta-row">
             <span><strong>Date:</strong> ${new Date().toLocaleDateString()}</span>
             <span><strong>Country:</strong> ${countryData.name}</span>
@@ -119,7 +104,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             <span><strong>Jurisdiction:</strong> ${stateCode ? states[stateCode].name : 'Federal/National'}</span>
             <span><strong>Vehicle Class:</strong> ${vehicleLabel}</span>
           </div>
-          
           <table class="table">
             <thead>
               <tr>
@@ -129,11 +113,9 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             </thead>
             <tbody>
     `;
-
     let itemAdded = false;
     Object.entries(selectedViolations).forEach(([ruleId, checked]) => {
       if (!checked) return;
-
       let foundRule = null;
       for (const category of Object.values(countryData.categories)) {
         const rule = category.rules.find(r => r.id === ruleId);
@@ -142,7 +124,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
           break;
         }
       }
-
       if (foundRule) {
         let fine = foundRule.baseFine;
         if (stateCode && foundRule.stateOverrides && foundRule.stateOverrides[stateCode]) {
@@ -150,7 +131,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
         } else if (stateCode && states[stateCode]) {
           fine = Math.round(fine * states[stateCode].factor);
         }
-
         receiptContent += `
           <tr>
             <td>
@@ -164,15 +144,12 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
         itemAdded = true;
       }
     });
-
     if (!itemAdded) {
       receiptContent += `<tr><td colspan="2" style="text-align:center;">No active infractions selected. Safe driving record!</td></tr>`;
     }
-
     receiptContent += `
             </tbody>
           </table>
-          
           <div class="total-section">
             <div class="total-row">
               <span>ESTIMATED SUM FINE:</span>
@@ -183,7 +160,6 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
               <span>${totalPoints} Points</span>
             </div>
           </div>
-          
           <div class="disclaimer">
             This document represents a dynamic computational estimate calculated by DriveLegal completely offline. 
             Citations depend on statutory frameworks (such as the Motor Vehicles Act or state amendments). 
@@ -192,13 +168,11 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
         </body>
       </html>
     `;
-
     const printWin = window.open('', '_blank');
     printWin.document.open();
     printWin.document.write(receiptContent);
     printWin.document.close();
   };
-
   const getSeverity = () => {
     if (totalPoints >= 6 || totalFine >= 8000 || (countryCode === 'US' && totalPoints >= 2) || (countryCode === 'UK' && totalPoints >= 6)) {
       return { level: 'danger', label: 'CRITICAL WARNING: LICENSE SUSPENSION RISK', text: 'You have triggered high-severity demerits or heavy fines. In most regions, this results in immediate vehicle impoundment, driver license disqualification (for 3-12 months), and potential compulsory court hearings.' };
@@ -208,31 +182,21 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
     }
     return { level: 'safe', label: 'COMPLIANT STANDING: SAFE RECORD', text: 'Zero active violations selected. Perfect compliance! You are ready to drive safely on public roads.' };
   };
-
   const severity = getSeverity();
-
   return (
     <div className="calc-container">
-      {/* LEFT INPUT & SELECTORS */}
+      { }
       <div className="glass-panel calc-selector-box">
         <h2 className="calc-section-title">1. Location Override</h2>
-
-        {/* Country and state select rows */}
+        { }
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Region/Country</span>
-            <select
-              className="location-selector"
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              style={{ padding: '10px 14px' }}
-            >
-              {Object.entries(lawDatabase.countries).map(([code, c]) => (
-                <option key={code} value={code}>{c.name} ({c.currency})</option>
-              ))}
+            <select className="location-selector" value="IN" disabled
+              style={{ padding: '10px 14px', opacity: 0.95, cursor: 'default' }}>
+              <option value="IN">India (₹ INR)</option>
             </select>
           </div>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>State/Province</span>
             <select
@@ -248,10 +212,8 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             </select>
           </div>
         </div>
-
         <h2 className="calc-section-title" style={{ marginTop: '10px' }}>2. Vehicle Classification</h2>
-
-        {/* Vehicle Selection Grid */}
+        { }
         <div className="vehicle-grid-selection">
           <div
             className={`vehicle-option-card ${vehicleType === 'motorcycle' ? 'active' : ''}`}
@@ -261,16 +223,12 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Two-Wheeler</div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Motorcycle / Scooter</span>
           </div>
-
-          <div
-            className={`vehicle-option-card ${vehicleType === 'car' ? 'active' : ''}`}
-            onClick={() => setVehicleType('car')}
-          >
+          <div className={`vehicle-option-card ${vehicleType === 'car' ? 'active' : ''}`}
+            onClick={() => setVehicleType('car')}>
             <Car size={28} />
             <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Light Vehicle</div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Car / SUV / Auto</span>
           </div>
-
           <div
             className={`vehicle-option-card ${vehicleType === 'commercial' ? 'active' : ''}`}
             onClick={() => setVehicleType('commercial')}
@@ -280,21 +238,15 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Truck / Bus / Cargo</span>
           </div>
         </div>
-
         <h2 className="calc-section-title" style={{ marginTop: '10px' }}>3. Select Infractions</h2>
-
-        {/* Violations Category Accordion */}
+        { }
         <div className="violations-accordion">
           {Object.entries(countryData.categories).map(([catKey, category]) => {
-            // Filter rules relevant to selected vehicle
             const relevantRules = category.rules.filter(rule =>
               rule.vehicleTypes.includes(vehicleType) || rule.vehicleTypes.includes('all')
             );
-
             if (relevantRules.length === 0) return null;
-
             const isCatActive = activeCategory === catKey;
-
             return (
               <div key={catKey} className="violation-accordion-item">
                 <div
@@ -309,19 +261,15 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
                   </span>
                   <span>{isCatActive ? '−' : '+'}</span>
                 </div>
-
                 {isCatActive && (
                   <div className="accordion-content">
                     {relevantRules.map((rule) => {
                       let fine = rule.baseFine;
-
-                      // State adjustment or override
                       if (stateCode && rule.stateOverrides && rule.stateOverrides[stateCode]) {
                         fine = rule.stateOverrides[stateCode].baseFine !== undefined ? rule.stateOverrides[stateCode].baseFine : fine;
                       } else if (stateCode && states[stateCode]) {
                         fine = Math.round(fine * states[stateCode].factor);
                       }
-
                       return (
                         <label key={rule.id} className="violation-checkbox-row">
                           <input
@@ -353,10 +301,9 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
           })}
         </div>
       </div>
-
-      {/* RIGHT RESULTS COLUMN */}
+      { }
       <div className="calc-results-sidebar">
-        {/* Fines and Points Result card */}
+        { }
         <div className="glass-panel results-card">
           <span className="results-lbl">Total Fine Sum</span>
           <span className="results-val">
@@ -367,8 +314,7 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
               {totalPoints} Demerit Points
             </span>
           )}
-
-          {/* Dynamic Warning notification */}
+          { }
           <div className={`severity-warning-box ${severity.level}`} style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', gap: '8px', fontWeight: 'bold', marginBottom: '6px' }}>
               <AlertTriangle size={16} />
@@ -376,8 +322,7 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             </div>
             {severity.text}
           </div>
-
-          {/* Reset and Print Row */}
+          { }
           <div style={{ display: 'flex', gap: '12px', width: '100%', marginTop: '24px' }}>
             <button
               className="icon-btn"
@@ -387,31 +332,23 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
             >
               <RefreshCw size={18} />
             </button>
-
-            <button
-              className="glow-btn glow-btn-teal"
-              onClick={printReceipt}
-              style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '48px', padding: '0 16px' }}
-              disabled={totalFine === 0}
-            >
+            <button className="glow-btn glow-btn-teal" onClick={printReceipt} style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '48px', padding: '0 16px' }} disabled={totalFine === 0}>
               <Printer size={18} />
               Print Citation Sheet
             </button>
           </div>
         </div>
+        { }
 
-        {/* Selected breakdown listing preview */}
         <div className="glass-panel challan-receipt-preview" style={{ flexGrow: 1 }}>
           <h2 className="receipt-title">
             <FileText size={14} style={{ color: 'var(--color-secondary)', verticalAlign: 'middle', marginRight: '6px' }} />
             Active Breakdown
           </h2>
-
           <div className="receipt-items-list">
             {Object.entries(selectedViolations).some(([_, checked]) => checked) ? (
               Object.entries(selectedViolations).map(([ruleId, checked]) => {
                 if (!checked) return null;
-
                 let foundRule = null;
                 for (const category of Object.values(countryData.categories)) {
                   const rule = category.rules.find(r => r.id === ruleId);
@@ -420,16 +357,13 @@ export default function CalculatorTab({ defaultLocation, onLocationChange }) {
                     break;
                   }
                 }
-
                 if (!foundRule) return null;
-
                 let fine = foundRule.baseFine;
                 if (stateCode && foundRule.stateOverrides && foundRule.stateOverrides[stateCode]) {
                   fine = foundRule.stateOverrides[stateCode].baseFine !== undefined ? foundRule.stateOverrides[stateCode].baseFine : fine;
                 } else if (stateCode && states[stateCode]) {
                   fine = Math.round(fine * states[stateCode].factor);
                 }
-
                 return (
                   <div key={ruleId} className="receipt-item-row">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', maxWidth: '75%' }}>

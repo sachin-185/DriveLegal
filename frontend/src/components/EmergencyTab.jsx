@@ -1,92 +1,172 @@
 import React from 'react';
 import { lawDatabase } from '../data/lawDatabase';
-import { Phone, ShieldAlert, HeartPulse, ShieldCheck, AlertTriangle, Compass, MapPin, Truck } from 'lucide-react';
+import { ShieldAlert, HeartPulse, ShieldCheck, Truck, PhoneCall, LifeBuoy, MapPin } from 'lucide-react';
 
 export default function EmergencyTab({ defaultLocation }) {
-  const countryCode = defaultLocation.country;
-  const stateCode = defaultLocation.state;
+  const countryCode = defaultLocation?.country || 'IN';
+  const stateCode = defaultLocation?.state || 'TN';
   const countryData = lawDatabase.countries[countryCode] || lawDatabase.countries.IN;
   const states = countryData.states || {};
+  const emergencyInfo = stateCode && states[stateCode]?.emergency ? states[stateCode].emergency : countryData.defaultEmergency;
+  const stateLabel = stateCode && states[stateCode] ? states[stateCode].name : 'Tamil Nadu';
 
-  const emergencyInfo = stateCode && states[stateCode]?.emergency 
-    ? states[stateCode].emergency 
-    : countryData.defaultEmergency;
-
-  const stateLabel = stateCode && states[stateCode] ? states[stateCode].name : '';
-
-  // IIT Madras CoERS Rbglabs GPS coordinates for that premium hackathon nod!
-  const hackathonCoordinates = {
-    lat: "13.0063° N",
-    lng: "80.2404° E",
-    desc: "CoERS Labs, IIT Madras"
-  };
+  const directoryData = [
+    {
+      state: "Delhi",
+      police: "112, 100",
+      ambulance: "102, 108, 112",
+      highway: "1033 (NHAI), 1095 (Delhi Traffic)",
+      fire: "101, 112"
+    },
+    {
+      state: "Maharashtra",
+      police: "112, 100",
+      ambulance: "108, 102, 112",
+      highway: "1033 (NHAI), 9833498334 (Highway Police)",
+      fire: "101, 112"
+    },
+    {
+      state: "Tamil Nadu",
+      police: "112, 100, 103 (Traffic)",
+      ambulance: "108",
+      highway: "1033 (NHAI), 1073 (Road Accident)",
+      fire: "101, 112"
+    },
+    {
+      state: "Karnataka",
+      police: "112, 100",
+      ambulance: "102",
+      highway: "1033 (NHAI), 1073 (Road Accident)",
+      fire: "101, 112"
+    },
+    {
+      state: "Uttar Pradesh",
+      police: "112, 100",
+      ambulance: "112",
+      highway: "1033 (NHAI), 1073 (Road Accident)",
+      fire: "101, 112"
+    }
+  ];
 
   return (
-    <div className="emergency-grid">
-      {/* LEFT LIST PANEL */}
-      <div className="glass-panel emergency-list-panel">
-        <h2 className="calc-section-title">
-          Roadside Emergency Centers ({stateLabel || countryData.name})
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>
-          Statutory roadside hotlines and emergency contact listings. Keep these in mind while traveling in low-network regions.
-        </p>
+    <div className="emergency-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="glass-panel emergency-list-panel" style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
+          <div>
+            <h2 className="calc-section-title" style={{ fontSize: '1.4rem', margin: 0 }}>
+              Roadside Emergency Hotlines ({stateLabel})
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '6px' }}>
+              Official statutory emergency contacts. Call these numbers immediately during traffic accidents, breakdowns, or medical crises.
+            </p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 14px', borderRadius: '20px', color: 'var(--color-danger)', fontSize: '0.82rem', fontWeight: 600 }}>
+            <PhoneCall size={15} />
+            <span>24/7 Priority Emergency Access</span>
+          </div>
+        </div>
 
-        {/* Hotlines Grid */}
-        <div className="hotline-cards-grid">
-          <div className="glass-panel hotline-card">
-            <div className="hotline-icon">
-              <ShieldAlert size={24} />
+        {/* 4 Core Hotline Cards for Currently Selected State */}
+        <div className="hotline-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+          <div className="glass-panel hotline-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '4px solid #6366f1' }}>
+            <div className="hotline-icon" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', padding: '12px', borderRadius: '12px' }}>
+              <ShieldAlert size={28} />
             </div>
             <div className="hotline-info">
-              <span className="hotline-title">Police (Law Enforcement)</span>
-              <span className="hotline-number">{emergencyInfo.police}</span>
+              <span className="hotline-title" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Police / Law Enforcement</span>
+              <span className="hotline-number" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'white', letterSpacing: '0.03em', display: 'block', marginTop: '4px' }}>{emergencyInfo.police}</span>
             </div>
           </div>
 
-          <div className="glass-panel hotline-card medical">
-            <div className="hotline-icon">
-              <HeartPulse size={24} />
+          <div className="glass-panel hotline-card medical" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '4px solid #10b981' }}>
+            <div className="hotline-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', padding: '12px', borderRadius: '12px' }}>
+              <HeartPulse size={28} />
             </div>
             <div className="hotline-info">
-              <span className="hotline-title">Medical / Ambulance Services</span>
-              <span className="hotline-number">{emergencyInfo.ambulance}</span>
+              <span className="hotline-title" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ambulance / Medical</span>
+              <span className="hotline-number" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'white', letterSpacing: '0.03em', display: 'block', marginTop: '4px' }}>{emergencyInfo.ambulance}</span>
             </div>
           </div>
 
-          <div className="glass-panel hotline-card highway">
-            <div className="hotline-icon">
-              <Truck size={24} />
+          <div className="glass-panel hotline-card highway" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '4px solid #f59e0b' }}>
+            <div className="hotline-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', padding: '12px', borderRadius: '12px' }}>
+              <Truck size={28} />
             </div>
             <div className="hotline-info">
-              <span className="hotline-title">National Highway Patrol</span>
-              <span className="hotline-number">{emergencyInfo.highwayPatrol}</span>
+              <span className="hotline-title" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Highway Patrol Assistance</span>
+              <span className="hotline-number" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', letterSpacing: '0.03em', display: 'block', marginTop: '4px' }}>{emergencyInfo.highwayPatrol}</span>
             </div>
           </div>
 
-          <div className="glass-panel hotline-card fire">
-            <div className="hotline-icon">
-              <ShieldCheck size={24} />
+          <div className="glass-panel hotline-card fire" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '4px solid #ef4444' }}>
+            <div className="hotline-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', padding: '12px', borderRadius: '12px' }}>
+              <ShieldCheck size={28} />
             </div>
             <div className="hotline-info">
-              <span className="hotline-title">Emergency Fire Brigade</span>
-              <span className="hotline-number">{emergencyInfo.fire || '112'}</span>
+              <span className="hotline-title" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Emergency Fire Brigade</span>
+              <span className="hotline-number" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'white', letterSpacing: '0.03em', display: 'block', marginTop: '4px' }}>{emergencyInfo.fire || '101, 112'}</span>
             </div>
           </div>
         </div>
 
-        {/* Breakdown workflow checklist */}
-        <div className="glass-panel incident-steps-panel">
-          <h2 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-            Statutory Breakdown Safety Timeline
-          </h2>
-          
+        {/* State / UT Statutory Emergency Directory Table (Exact Image 4 Match) */}
+        <div className="glass-panel" style={{ padding: '20px', background: 'rgba(15, 23, 42, 0.6)', marginBottom: '28px' }}>
+          <h3 style={{ fontSize: '1.1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+            <MapPin size={18} style={{ color: 'var(--color-secondary)' }} />
+            National Road Safety Emergency Directory (State-Wise Matrix)
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-secondary)' }}>
+                  <th style={{ padding: '12px 14px', fontWeight: 600 }}>State / UT</th>
+                  <th style={{ padding: '12px 14px', fontWeight: 600 }}>Police / Law Enforcement</th>
+                  <th style={{ padding: '12px 14px', fontWeight: 600 }}>Ambulance / Medical</th>
+                  <th style={{ padding: '12px 14px', fontWeight: 600 }}>Highway Patrol Assistance</th>
+                  <th style={{ padding: '12px 14px', fontWeight: 600 }}>Emergency Fire Brigade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {directoryData.map((row, idx) => (
+                  <tr key={idx} style={{
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                    background: row.state.toLowerCase() === stateLabel.toLowerCase() ? 'rgba(139, 92, 246, 0.12)' : 'transparent',
+                    transition: 'background 0.2s ease'
+                  }}>
+                    <td style={{ padding: '14px', fontWeight: 700, color: '#ffffff', textDecoration: 'underline dotted', textUnderlineOffset: '4px' }}>
+                      {row.state}
+                    </td>
+                    <td style={{ padding: '14px', color: '#e2e8f0', fontWeight: 600 }}>
+                      {row.police}
+                    </td>
+                    <td style={{ padding: '14px', color: '#e2e8f0' }}>
+                      {row.ambulance}
+                    </td>
+                    <td style={{ padding: '14px', color: '#e2e8f0' }}>
+                      {row.highway}
+                    </td>
+                    <td style={{ padding: '14px', color: '#e2e8f0' }}>
+                      {row.fire}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Step-by-Step Breakdown Safety Timeline */}
+        <div className="glass-panel incident-steps-panel" style={{ padding: '20px', background: 'rgba(15, 23, 42, 0.5)' }}>
+          <h3 style={{ fontSize: '1.05rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <LifeBuoy size={18} style={{ color: 'var(--color-secondary)' }} />
+            Statutory Breakdown & Incident Safety Timeline
+          </h3>
           <div className="workflow-steps-list">
             <div className="workflow-step active">
               <div className="step-num-badge">1</div>
               <div className="step-content">
                 <span className="step-title">Secure & Stabilize Vehicle</span>
-                <span className="step-desc">Pull over safely onto the hard shoulder or roadside. Turn the steering wheel away from the active lane, set the parking brake, and immediately activate your hazard warning lights.</span>
+                <span className="step-desc">Pull over safely onto the hard shoulder or nearest curb. Turn your steering wheel away from the active lane, set the handbrake, and immediately switch on hazard lights.</span>
               </div>
             </div>
 
@@ -94,85 +174,24 @@ export default function EmergencyTab({ defaultLocation }) {
               <div className="step-num-badge">2</div>
               <div className="step-content">
                 <span className="step-title">Examine Surrounding Safety Zones</span>
-                <span className="step-desc">Check traffic before exiting the vehicle. Passengers should exit on the left side (or side facing away from active traffic lanes) and stand behind highway crash barriers.</span>
+                <span className="step-desc">Always check surrounding traffic before exiting. Passengers must exit from the side facing away from moving traffic and move behind crash barriers.</span>
               </div>
             </div>
 
             <div className="workflow-step active">
               <div className="step-num-badge">3</div>
               <div className="step-content">
-                <span className="step-title">Deploy Warnings (Reflective Triangle)</span>
-                <span className="step-desc">Deploy a reflective warning triangle approximately 50 meters (150 feet) behind the vehicle to give incoming traffic ample stopping alert notice.</span>
+                <span className="step-title">Deploy Reflective Warning Triangle</span>
+                <span className="step-desc">Place your reflective triangle at least 45 to 50 meters (150 feet) behind the stationary vehicle to alert high-speed oncoming traffic.</span>
               </div>
             </div>
 
             <div className="workflow-step">
               <div className="step-num-badge">4</div>
               <div className="step-content">
-                <span className="step-title">Trigger Highway Hotlines</span>
-                <span className="step-desc">Call the roadside emergency numbers above, providing your exact coordinates. Do not attempt self-repair on active, high-speed highway corridors.</span>
+                <span className="step-title">Contact Highway Hotline</span>
+                <span className="step-desc">Dial the dedicated highway patrol number above. Provide your landmark, direction of travel, and lane position. Never attempt self-repair on active lanes.</span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT BEACON MAP PANEL */}
-      <div className="glass-panel simulated-map-widget">
-        <h2 className="receipt-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Compass size={14} style={{ color: 'var(--color-secondary)' }} />
-          Local Emergency Locator (Offline)
-        </h2>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.3' }}>
-          GPS locator operates 100% offline, caching nearby emergency stations via cached static grids.
-        </p>
-
-        {/* Visual Map Viewport */}
-        <div className="map-viewport">
-          {/* Subtle grid lines background overlay */}
-          <svg className="grid-line-svg">
-            <defs>
-              <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(99, 102, 241, 0.15)" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#gridPattern)"/>
-          </svg>
-
-          {/* Compass Radar circular bands */}
-          <div style={{ position: 'absolute', width: '220px', height: '220px', border: '1px dashed rgba(6, 182, 212, 0.15)', borderRadius: '50%' }}></div>
-          <div style={{ position: 'absolute', width: '130px', height: '130px', border: '1px dashed rgba(6, 182, 212, 0.25)', borderRadius: '50%' }}></div>
-
-          {/* User broken car beacon */}
-          <div className="simulated-car-beacon">
-            <div className="ping-beacon"></div>
-            <MapPin className="car-icon" size={32} />
-          </div>
-
-          {/* Simulated landmarks nearby */}
-          <div className="hospital-landmark" title="IIT Madras Trauma Medical Center">
-            <HeartPulse size={20} />
-            <span style={{ fontSize: '0.62rem', display: 'block', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.5)', padding: '2px 4px', borderRadius: '4px', marginTop: '2px', whiteSpace: 'nowrap' }}>
-              IIT Medical (1.2 km)
-            </span>
-          </div>
-
-          <div className="police-landmark" title="CoERS Highway Patrol Station">
-            <ShieldAlert size={20} />
-            <span style={{ fontSize: '0.62rem', display: 'block', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.5)', padding: '2px 4px', borderRadius: '4px', marginTop: '2px', whiteSpace: 'nowrap' }}>
-              Patrol Station (2.5 km)
-            </span>
-          </div>
-
-          {/* Active coordinates overlays */}
-          <div className="gps-info-overlay">
-            <div>
-              <div style={{ fontWeight: 'bold', color: 'white' }}>Current Location Node</div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{hackathonCoordinates.desc}</div>
-            </div>
-            <div className="coordinates" style={{ textAlign: 'right' }}>
-              <div>{hackathonCoordinates.lat}</div>
-              <div>{hackathonCoordinates.lng}</div>
             </div>
           </div>
         </div>

@@ -11,11 +11,16 @@ export const lawDatabase = {
         fire: "101"
       },
       states: {
-        DL: { name: "Delhi", factor: 1.0 },
-        MH: { name: "Maharashtra", factor: 1.0 },
-        TN: { name: "Tamil Nadu", factor: 1.0 },
-        KA: { name: "Karnataka", factor: 1.0 },
-        UP: { name: "Uttar Pradesh", factor: 0.9 }
+        TN: {
+          name: "Tamil Nadu",
+          factor: 1.0,
+          emergency: {
+            police: "112, 100, 103 (Traffic)",
+            ambulance: "108, 102, 104 (Advice)",
+            highwayPatrol: "1033 (NHAI), 1073 (Road Accident)",
+            fire: "101, 112"
+          }
+        }
       },
       categories: {
         speeding: {
@@ -112,6 +117,41 @@ export const lawDatabase = {
               description: "Driving a four-wheeler without wearing a seatbelt, or carrying passengers in the front/rear without seatbelts fastened.",
               vehicleTypes: ["car", "suv", "commercial"],
               stateOverrides: {}
+            },
+            {
+              "id": "in_triple_riding",
+              "title": "Triple Riding on Two-Wheeler",
+              "section": "Section 194C MVA",
+              "baseFine": 1000,
+              "points": 3,
+              "description": "Carrying more than one pillion rider on a two-wheeler. Incurs ₹1,000–₹2,000 fine and mandatory 3-month driving licence suspension in Tamil Nadu.",
+              "vehicleTypes": [
+                "motorcycle",
+                "scooter"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 1000,
+                  "description": "₹1,000–₹2,000 fine + mandatory 3-month driving licence suspension."
+                }
+              }
+            },
+            {
+              "id": "in_mobile_phone",
+              "title": "Using Mobile Phone While Driving",
+              "section": "Section 184(c) MVA",
+              "baseFine": 1000,
+              "points": 2,
+              "description": "Holding or using a mobile phone while driving or riding unless hands-free strictly for navigation. Incurs ₹1,000 first offence and up to ₹10,000 for repeat offences in Tamil Nadu.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 1000,
+                  "description": "₹1,000 first offence; up to ₹10,000 for repeat offences."
+                }
+              }
             }
           ]
         },
@@ -150,6 +190,57 @@ export const lawDatabase = {
               stateOverrides: {
                 DL: { baseFine: 10000, description: "Strictly enforced in Delhi NCR with immediate court challan of 10000 INR and potential license suspension." }
               }
+            },
+            {
+              "id": "in_hsrp_plate",
+              "title": "Defective or Non-HSRP Number Plate",
+              "section": "Section 177 & MoRTH HSRP Rules",
+              "baseFine": 1000,
+              "points": 1,
+              "description": "Driving without mandatory tamper-proof High-Security Registration Plate (HSRP), non-removable snap locks, or fuel windshield sticker. ₹1,000–₹5,000 first offence; up to ₹10,000 repeat in Tamil Nadu.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 1000,
+                  "description": "Strictly enforced via automated AI camera grid: ₹1,000–₹5,000 first offence, up to ₹10,000 for repeat offences."
+                }
+              }
+            },
+            {
+              "id": "in_no_rc",
+              "title": "Driving Without Valid Registration (RC)",
+              "section": "Section 192 MVA",
+              "baseFine": 5000,
+              "points": 0,
+              "description": "Operating a motor vehicle without a valid Registration Certificate (RC). ₹5,000 first offence; ₹10,000 for repeat offences in Tamil Nadu.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 5000,
+                  "description": "₹5,000 first offence; ₹10,000 for repeat offences."
+                }
+              }
+            },
+            {
+              "id": "in_juvenile_driving",
+              "title": "Underage / Juvenile Driving",
+              "section": "Section 199A MVA",
+              "baseFine": 25000,
+              "points": 5,
+              "description": "Allowing a minor to drive a vehicle. Severe penalty: ₹25,000 fine, 3 years imprisonment for guardian, and vehicle RC cancelled for 1 year.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 25000,
+                  "description": "₹25,000 fine on guardian, 3-year jail term for vehicle owner/parent, and vehicle RC cancelled for 1 year."
+                }
+              }
             }
           ]
         },
@@ -179,6 +270,40 @@ export const lawDatabase = {
               description: "Driving against the designated flow of traffic, heavily penalized due to high head-on collision risks.",
               vehicleTypes: ["all"],
               stateOverrides: {}
+            },
+            {
+              "id": "in_blocking_ambulance",
+              "title": "Blocking Emergency Vehicles (Ambulance)",
+              "section": "Section 194E MVA",
+              "baseFine": 10000,
+              "points": 4,
+              "description": "Failing to draw to the side of the road to allow free passage to ambulances, fire trucks, or emergency responders. Strictly enforced via AI cameras with ₹10,000 fine and up to 6 months imprisonment.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 10000,
+                  "description": "Zero tolerance in Tamil Nadu: ₹10,000 fine and up to 6 months imprisonment."
+                }
+              }
+            },
+            {
+              "id": "in_disobey_police",
+              "title": "Disobeying Traffic Police Orders",
+              "section": "Section 179 MVA",
+              "baseFine": 2000,
+              "points": 0,
+              "description": "Willfully disobedient to lawful directions given by a traffic police officer or statutory transport authority. ₹2,000 fine in Tamil Nadu.",
+              "vehicleTypes": [
+                "all"
+              ],
+              "stateOverrides": {
+                "TN": {
+                  "baseFine": 2000,
+                  "description": "₹2,000 statutory compound fine."
+                }
+              }
             }
           ]
         }

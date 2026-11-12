@@ -1,6 +1,5 @@
 import { lawDatabase } from '../data/lawDatabase.js';
 
-// Standard English stop words to filter out
 const STOP_WORDS = new Set([
   'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'arent', 'as', 'at',
   'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'cant', 'cannot', 'could',
@@ -17,7 +16,6 @@ const STOP_WORDS = new Set([
   'youre', 'youve', 'your', 'yours', 'yourself', 'yourselves'
 ]);
 
-// Helper to tokenize and clean text
 export function tokenize(text) {
   if (!text) return [];
   return text
@@ -27,32 +25,9 @@ export function tokenize(text) {
     .filter(word => word.length > 0 && !STOP_WORDS.has(word));
 }
 
-// Extractor for location entities
 function extractLocation(tokens, rawText) {
   const text = rawText.toLowerCase();
-
-  // Search mappings
-  const locations = {
-    IN: {
-      country: "IN",
-      state: null,
-      keywords: ["india", "indian", "mva", "motor vehicle", "bharat", "inr", "rupees", "rs"]
-    },
-    US: {
-      country: "US",
-      state: null,
-      keywords: ["usa", "us", "america", "american", "united states", "usd", "dollars", "california", "cvc", "cali", "ca", "new york", "ny", "vtl", "nyc", "texas", "tx", "florida", "fl"]
-    },
-    UK: {
-      country: "UK",
-      state: null,
-      keywords: ["uk", "united kingdom", "britain", "british", "england", "scotland", "london", "gbp", "pounds", "highway code", "ulez", "tfl"]
-    }
-  };
-
-  // State mappings
   const stateMappings = {
-    // India
     delhi: { country: "IN", state: "DL" },
     dl: { country: "IN", state: "DL" },
     maharashtra: { country: "IN", state: "MH" },
@@ -71,57 +46,20 @@ function extractLocation(tokens, rawText) {
     uttarpradesh: { country: "IN", state: "UP" },
     "uttar pradesh": { country: "IN", state: "UP" },
     lucknow: { country: "IN", state: "UP" },
-
-    // USA
-    california: { country: "US", state: "CA" },
-    ca: { country: "US", state: "CA" },
-    la: { country: "US", state: "CA" },
-    "san francisco": { country: "US", state: "CA" },
-    newyork: { country: "US", state: "NY" },
-    "new york": { country: "US", state: "NY" },
-    ny: { country: "US", state: "NY" },
-    nyc: { country: "US", state: "NY" },
-    texas: { country: "US", state: "TX" },
-    tx: { country: "US", state: "TX" },
-    houston: { country: "US", state: "TX" },
-    florida: { country: "US", state: "FL" },
-    fl: { country: "US", state: "FL" },
-    miami: { country: "US", state: "FL" },
-
-    // UK
-    england: { country: "UK", state: "ENG" },
-    wales: { country: "UK", state: "ENG" },
-    scotland: { country: "UK", state: "SCT" },
-    edinburgh: { country: "UK", state: "SCT" },
-    glasgow: { country: "UK", state: "SCT" },
-    sct: { country: "UK", state: "SCT" },
-    london: { country: "UK", state: "LDN" },
-    ldn: { country: "UK", state: "LDN" }
+    ncr: { country: "IN", state: "DL" }
   };
 
-  // Check state phrases first
   for (const [key, mapping] of Object.entries(stateMappings)) {
     if (text.includes(key)) {
       return mapping;
     }
   }
 
-  // Check countries next
-  for (const [countryCode, data] of Object.entries(locations)) {
-    for (const kw of data.keywords) {
-      if (text.includes(kw)) {
-        return { country: countryCode, state: null };
-      }
-    }
-  }
-
-  return null;
+  return { country: "IN", state: "DL" };
 }
 
-// Extractor for vehicle entities
 function extractVehicle(tokens, rawText) {
   const text = rawText.toLowerCase();
-
   const vehicles = {
     motorcycle: ["motorcycle", "bike", "scooter", "two wheeler", "2 wheeler", "activa", "royal enfield"],
     car: ["car", "suv", "sedan", "hatchback", "four wheeler", "4 wheeler", "jeep", "auto"],
@@ -139,299 +77,350 @@ function extractVehicle(tokens, rawText) {
   return null;
 }
 
-// Map violation keywords to categories and specific searches
-const VIOLATION_KEYWORDS = {
-  speeding: ["speed", "speeding", "overspeed", "overspeeding", "fast", "mph", "kmh", "km/h", "limits", "limit", "reckless", "rash", "dangerous"],
-  sobriety: ["drink", "drunk", "drinking", "alcohol", "dui", "dwi", "bac", "breathalyzer", "wine", "beer", "whiskey", "intoxicated", "sober"],
-  safety_gear: ["helmet", "headgear", "seatbelt", "belt", "seat-belt", "strapped", "phone", "mobile", "cell", "texting", "distracted", "calling"],
-  licensing: ["license", "licence", "dl", "unlicensed", "permit", "insurance", "puc", "pollution", "emission", "emissions", "smoke", "registration", "rc"],
-  signals: ["red light", "red-light", "signal", "traffic light", "junction", "one way", "one-way", "wrong way", "wrong-way", "opposite", "direction"],
-  city_zones: ["ulez", "clean air", "emission zone", "congestion", "charge", "london charge", "tfl"]
-};
+// Comprehensive Traffic & Legal Knowledge Base
+const LEGAL_INTENT_PATTERNS = [
+  {
+    id: "tn_hsrp_guidelines",
+    patterns: [/hsrp/i, /high security/i, /number plate/i, /snap lock/i, /windshield sticker/i, /third registration sticker/i, /fancy plate/i, /bookmyhsrp/i],
+    response: `### 🛡️ High-Security Registration Plate (HSRP) Rules in Tamil Nadu
 
-// Extractor for violation concepts
-function extractViolationKeywords(tokens, rawText) {
-  const text = rawText.toLowerCase();
-  const matchedCategories = [];
+Under **MoRTH statutory guidelines** and the **Amended Motor Vehicles Act**:
 
-  for (const [category, keywords] of Object.entries(VIOLATION_KEYWORDS)) {
-    for (const kw of keywords) {
-      if (text.includes(kw)) {
-        matchedCategories.push(category);
-        break; // check next category
-      }
-    }
+* 🔒 **Mandatory Tamper-Proof Standards**: Every vehicle registered in Tamil Nadu must display an HSRP plate equipped with non-removable snap locks, laser-etched 10-digit PIN, and a Chromium Ashoka Chakra hologram.
+* 🎨 **Color-Coded Plates by Vehicle Type**:
+  * ⚪ **Private Petrol/Diesel/CNG**: White background with black lettering.
+  * 🟡 **Commercial (Taxis, Trucks, Buses)**: Yellow background with black lettering.
+  * 🟢 **Electric Vehicles (EVs)**: Green background with white/yellow lettering.
+* 🏷️ **Fuel-Type Windshield Stickers (Four-Wheelers)**:
+  * 🔵 **Blue Sticker**: Petrol & CNG vehicles.
+  * 🟠 **Orange Sticker**: Diesel vehicles.
+  * ⚪ **Grey Sticker**: Electric & other alternative fuels.
+* 💵 **Non-HSRP Penalties**: Defective, faded, or non-HSRP plates incur **₹1,000 to ₹5,000** for first offense, and up to **₹10,000** for repeat violations.
+* 📋 **How to Get HSRP in Tamil Nadu**:
+  1. *Dealership / RTO*: Unlike some states, Tamil Nadu does not consistently route older vehicles through bookmyhsrp.com. Contact your authorized brand dealer in TN or your local RTO.
+  2. *Documents*: Carry RC copy, active Vehicle Insurance, and Govt ID.
+  3. *Official Fee*: Typically **₹400** for two-wheelers and **₹600–₹1,200** for cars (+₹100 for windshield sticker).
+  4. *Fitment*: Manufactured within 5–7 working days; riveted with non-reusable snap locks at the dealer.`
+  },
+  {
+    id: "tn_echallan_timeline",
+    patterns: [/60 day/i, /echallan.*deadline/i, /pay.*challan/i, /court summon/i, /challan.*window/i, /challan.*due/i],
+    response: `### ⚖️ Tamil Nadu Digital e-Challan Payment & 60-Day Rule
+
+Under Tamil Nadu Traffic Police enforcement and the amended Motor Vehicles Act:
+
+* ⏱️ **60-Day Payment Window**: All digital e-Challans issued via automated AI ANPR cameras or handheld police terminals must be settled **within 60 days** of issuance.
+* ⚖️ **Consequences of Non-Payment**: Failing to pay within 60 days results in:
+  1. Automated forwarding to Virtual Courts / Court Summons.
+  2. Vehicle blacklist on Vahan/Sarathi portal (blocking insurance renewal, pollution tests, or RC transfer).
+  3. Recommendation for **Driving Licence suspension**.
+* 💳 **How to Pay**: Clear e-Challans online via the official Tamil Nadu Police portal (\`echallan.parivahan.gov.in\`) or at designated e-Seva centres.`
+  },
+  {
+    id: "tn_ambulance_blocking",
+    patterns: [/ambulance/i, /emergency vehicle/i, /block.*ambulance/i, /fire brigade/i],
+    response: `### 🚨 Blocking Emergency Vehicles & Ambulances (Tamil Nadu)
+
+Under **Section 194E of the Motor Vehicles Act**:
+
+* 💵 **Strict Fine**: Flat **₹10,000** spot fine.
+* ⚖️ **Imprisonment**: Up to **6 months jail time** for vehicle drivers who obstruct or fail to give way to an active ambulance or fire service vehicle.
+* 📹 **AI Camera Enforcement**: Traffic junctions in Tamil Nadu are monitored by AI-enabled ANPR cameras that automatically flag and issue dockets for emergency vehicle obstruction.`
+  },
+  {
+    id: "tn_juvenile_driving",
+    patterns: [/underage/i, /minor.*driving/i, /juvenile/i, /school.*bike/i, /child.*drive/i],
+    response: `### ⚠️ Underage / Juvenile Driving Penalties (Tamil Nadu)
+
+Under **Section 199A of the Motor Vehicles Act**:
+
+* 💵 **Statutory Fine**: **₹25,000** levied on the vehicle owner or parent/guardian.
+* ⚖️ **Jail Term for Guardian**: Up to **3 years imprisonment** for the parent or legal vehicle owner.
+* 🚗 **Vehicle Impoundment**: The vehicle's **Registration Certificate (RC) is cancelled for 1 full year**.
+* 🛑 **Juvenile Restriction**: The minor is disqualified from obtaining a learner's or driving license until the age of **25 years**.`
+  },
+  {
+    id: "digilocker_documents",
+    patterns: [/digilocker/i, /mparivahan/i, /soft copy/i, /digital rc/i, /digital license/i, /carry physical/i, /show on phone/i],
+    response: `### 📱 Digital Documents & DigiLocker Legality (India)
+
+Under **Rule 139 of the Central Motor Vehicles Rules (CMVR)** and **MoRTH Circular (RT-11036/64/2017-MVL)** read with **Section 4 of the Information Technology Act, 2000**:
+
+* ✅ **100% Legally Binding**: Electronic versions of your **Driving License (DL)**, **Registration Certificate (RC)**, and **Insurance** stored in the government **DigiLocker** or **mParivahan** apps carry equal legal standing to original physical cards.
+* 🛡️ **Police Authority Limits**: Traffic police **cannot** demand physical cards if you present verified documents via DigiLocker or mParivahan. They are also **prohibited from seizing your physical mobile phone**.
+* ⚠️ **Screenshots / Photos**: Simple phone camera gallery photos or WhatsApp PDFs are **not** accepted as official digital documents. They must be inside the verified DigiLocker or mParivahan application.`
+  },
+  {
+    id: "police_key_snatching",
+    patterns: [/snatch.*key/i, /take.*key/i, /remove.*key/i, /pull.*key/i, /police.*key/i, /constable.*fine/i, /police rights/i, /police stop/i],
+    response: `### 👮 Traffic Police Stopping Protocol & Citizen Rights (India)
+
+Under the **Motor Vehicles Act (Section 130)** and Police Standing Orders:
+
+1. 🚫 **Key Snatching is Illegal**: No traffic officer or constable is legally permitted to forcibly turn off your vehicle ignition or snatch vehicle keys from moving or stopped vehicles.
+2. 🎖️ **Officer Rank Requirement**: Only a police officer of the rank of **Assistant Sub-Inspector (ASI)**, Sub-Inspector (SI), or Inspector in official uniform with badge and e-challan terminal can issue a spot monetary fine. Constables can only stop traffic or record plate numbers.
+3. 📄 **Receipt Requirement**: Never pay any cash fine without receiving an official printed **e-Challan receipt** or stamped government book receipt containing the officer's name, ID, and penal section.
+4. 📹 **Right to Record**: Citizens have the legal right to film roadside traffic stops in public areas for safety, provided they do not obstruct law enforcement duties.`
+  },
+  {
+    id: "dispute_challan",
+    patterns: [/dispute.*challan/i, /wrong.*challan/i, /fake.*challan/i, /challenge.*challan/i, /not my car/i, /camera error/i, /false challan/i],
+    response: `### ⚖️ How to Dispute or Cancel a False Traffic Challan (India)
+
+If you received a wrong or faulty automated camera challan:
+
+1. 🌐 **Parivahan Grievance Portal**:
+   * Visit the official portal: \`echallan.parivahan.gov.in/gsticket/\`.
+   * Submit your Challan Number, Vehicle Registration, and upload clear photo/dashcam evidence proving camera misidentification or clone plate fraud.
+2. 📧 **Traffic Police Notice Branch**:
+   * Email the State Traffic Police Notice Branch (e.g., Delhi Traffic Police Notice Branch at \`info@delhitrafficpolice.nic.in\`). Attach the challan PDF and your RC copy showing distinct vehicle features.
+3. 🏛️ **Virtual Court Redressal**:
+   * Access \`vcourts.gov.in\`. Search by mobile number or vehicle number.
+   * Instead of accepting the penalty, select **"I want to contest / plead Not Guilty"**. The matter will be assigned to a designated traffic magistrate or National Lok Adalat where fines are frequently overturned.`
+  },
+  {
+    id: "pay_challan_online",
+    patterns: [/pay.*challan/i, /how.*pay.*fine/i, /online.*payment.*challan/i, /parivahan.*pay/i, /vcourt/i],
+    response: `### 💳 Step-by-Step: How to Pay Traffic Challan Online
+
+1. **Parivahan e-Challan Portal**:
+   * Open: \`https://echallan.parivahan.gov.in\`
+   * Click **"Check Online Services"** ➔ **"Check Challan Status"**.
+   * Enter your **Challan Number**, **Vehicle Number** (with last 5 digits of Chassis/Engine number), or **DL Number**.
+   * Verify the violation docket and click **"Pay Now"** (Net Banking, UPI, Credit/Debit card).
+2. **Virtual Court (For Sent to Court Challans)**:
+   * Open: \`https://vcourts.gov.in\`
+   * Select your State & Court Department ➔ Enter Mobile/Challan No.
+   * View the compounding penalty ordered by the magistrate and pay securely via Bharatkosh / State PG.`
+  },
+  {
+    id: "underage_driving",
+    patterns: [/minor.*driv/i, /underage/i, /child.*driv/i, /kid.*driv/i, /below 18.*driv/i, /17 year.*driv/i, /16 year.*driv/i],
+    response: `### ⚠️ Underage / Minor Driving Strict Penalties
+
+Under **Section 199A of the Motor Vehicles (Amendment) Act**:
+
+* 🔒 **Parent / Vehicle Owner Liability**: The parent or guardian of the juvenile, or the vehicle owner who permitted them to drive, is deemed guilty of a criminal offense:
+  * **Imprisonment**: Up to **3 years** in jail.
+  * **Compounding Fine**: **₹25,000**.
+* 🚗 **Vehicle Deregistration**: Vehicle registration certificate (RC) is **suspended for 1 full year**.
+* 🚫 **License Disqualification for Minor**: The juvenile is legally **barred from obtaining a driving license until reaching age 25**.
+* ⚖️ **Juvenile Justice Act**: The minor will also face summary proceedings under the Juvenile Justice (Care and Protection of Children) Act.`
+  },
+  {
+    id: "triple_riding",
+    patterns: [/triple.*rid/i, /3 people.*bike/i, /three.*riding/i, /tripling/i, /3 on bike/i],
+    response: `### 🏍️ Triple Riding on Two-Wheelers (India)
+
+Under **Section 194C of the Motor Vehicles Act**:
+
+* 💵 **Statutory Fine**: **₹1,000**.
+* ⚠️ **License Suspension**: Disqualification of driving license for **3 months**.
+* 🛑 **Safety Hazard**: Two-wheelers are engineered specifically for a single pillion passenger. Carrying two or more pillion passengers severely compromises center of gravity, increases braking distance, and destabilizes steering.`
+  },
+  {
+    id: "tinted_glass",
+    patterns: [/tint/i, /sun film/i, /black glass/i, /dark window/i, /vlt/i, /film.*glass/i],
+    response: `### 🚗 Window Tint & Sun Film Regulations (India)
+
+Under the **Supreme Court ruling (Avishek Goenka v. Union of India)** and **Rule 100 CMVR**:
+
+* ❌ **Zero Aftermarket Film Allowed**: The installation of any aftermarket sun film, dark tinting sticker, or curtain on car windows is **strictly illegal**, regardless of its transparency percentage.
+* 📐 **Factory Glass Standards**: Vehicles must maintain visual light transmission (VLT) baked into the glass at manufacture:
+  * **Front & Rear Windscreens**: Minimum **70% VLT**.
+  * **Side Door Glasses**: Minimum **50% VLT**.
+* 💵 **Penalty**: Spot fine of **₹500 to ₹1,500** under Section 177/177A MVA + compulsory removal of the film on the spot by traffic enforcement.`
+  },
+  {
+    id: "pressure_horns",
+    patterns: [/horn/i, /pressure horn/i, /loud exhaust/i, /silencer/i, /modified exhaust/i, /noise/i],
+    response: `### 📢 Pressure Horns & Modified Silencers (Exhausts)
+
+Under **Section 190(2) of the Motor Vehicles Act** and **Rule 119 CMVR**:
+
+* 💵 **Fine Penalty**: Up to **₹10,000** for noise pollution / non-standard safety equipment.
+* 🛑 **Seizure / Impoundment**: The vehicle can be impounded or directed to an authorized inspection station until stock OEM exhaust and standard horns (under 80 decibels) are reinstalled.
+* 🚫 **Multi-toned & siren horns**: Prohibited for civilian vehicles; reserved strictly for ambulances, police, and fire tenders.`
+  },
+  {
+    id: "hit_and_run",
+    patterns: [/hit and run/i, /hit & run/i, /flee.*accident/i, /run away.*accident/i],
+    response: `### 🚨 Hit and Run Statutory Mandates & Driver Obligations
+
+Under the **Bharatiya Nyaya Sanhita (BNS Section 106)** and **Motor Vehicles Act (Section 134)**:
+
+1. **Mandatory Duty to Report**: If involved in a collision resulting in injury or property damage, the driver must immediately arrange medical attention for the victim and report the occurrence to the nearest police station or dial \`112\`.
+2. **Escalated Penalties**: Leaving the scene of an accident without reporting to an officer or magistrate carries penalties up to **10 years imprisonment** and a substantial monetary fine under BNS provisions.
+3. 🛡️ **Good Samaritan Shield**: Under **Section 134A MVA**, any bystander or passerby who assists accident victims cannot be harassed, detained, or forced to pay hospital admission charges.`
+  },
+  {
+    id: "puc_certificate",
+    patterns: [/puc/i, /pollution.*cert/i, /emission.*cert/i, /smoke.*test/i],
+    response: `### 💨 Pollution Under Control (PUC) Statutory Requirements
+
+Under **Section 190(2) of the Motor Vehicles Act**:
+
+* 💵 **Strict Fine**: **₹10,000** flat fine across metropolitan zones (Delhi, Mumbai, Bengaluru, Chennai) and potential **license suspension for 3 months**.
+* 📅 **Validity Guidelines**:
+  * **New Vehicles**: Covered by manufacturer's initial fitness for **1 year** from registration date.
+  * **BS4 / BS6 Vehicles**: Renewable every **12 months** (1 year).
+  * **Pre-BS4 / Older Vehicles**: Renewable every **6 months**.`
   }
+];
 
-  return matchedCategories;
-}
-
-// Intent Classifier
-function determineIntent(tokens, rawText) {
-  const text = rawText.toLowerCase();
-
-  // Greetings
-  if (/\b(hi|hello|hey|greetings|good morning|hola|howdy|whats up)\b/.test(text)) {
-    return 'greetings';
-  }
-
-  // Emergency / Assistance
-  if (/\b(emergency|accident|help|tow|ambulance|police|police station|crash|hospital|breakdown|flat tire|toll free|hotline)\b/.test(text)) {
-    return 'emergency';
-  }
-
-  // Quiz reference
-  if (/\b(quiz|game|test|trivia|question|badge|score|learn)\b/.test(text)) {
-    return 'quiz_query';
-  }
-
-  // Cost / fine query
-  if (/\b(fine|cost|fee|penalty|charge|amount|pay|challan|calculator|compounding)\b/.test(text)) {
-    return 'check_fine';
-  }
-
-  // Demerits / points query
-  if (/\b(points|demerit|demerits|record|suspension|points deduction|license points)\b/.test(text)) {
-    return 'check_points';
-  }
-
-  return 'generic_query';
-}
-
-// Primary offline analysis method
-export function analyzeQuery(rawText, defaultLocation = { country: "IN", state: "DL" }) {
+export function analyzeQuery(rawText, defaultLocation = { country: "IN", state: "TN" }) {
   if (!rawText || rawText.trim() === '') {
     return {
       intent: 'greetings',
-      responseText: "Hello! I am DriveLegal, your offline-first AI road safety and legal assistant. How can I help you understand traffic laws, fines, or safety protocols today?"
+      responseText: "Hello! I am **DriveLegal AI**, your offline-resilient road safety and traffic law copilot. How can I help you with Indian traffic statutes, compounding challans, or emergency protocols today?"
     };
   }
 
   const tokens = tokenize(rawText);
-  const intent = determineIntent(tokens, rawText);
   const detectedLoc = extractLocation(tokens, rawText);
   const detectedVehicle = extractVehicle(tokens, rawText);
-  const detectedViolations = extractViolationKeywords(tokens, rawText);
+  const targetCountry = "IN";
+  const targetState = detectedLoc ? detectedLoc.state : (defaultLocation.state || "TN");
+  const countryData = lawDatabase.countries.IN;
 
-  // Target Location selection (falls back to detected, or default)
-  const targetCountry = detectedLoc ? detectedLoc.country : defaultLocation.country;
-  const targetState = detectedLoc ? detectedLoc.state : (detectedLoc ? null : defaultLocation.state);
-
-  const countryData = lawDatabase.countries[targetCountry];
-  if (!countryData) {
-    return {
-      intent: 'unknown',
-      responseText: "I recognize you're asking about traffic laws, but I don't have records for that country yet. I currently support comprehensive traffic guides for India (INR), the United States (USD), and the United Kingdom (GBP). Please try specifying one of these countries!"
-    };
+  // 1. Check specialized legal knowledge patterns
+  for (const item of LEGAL_INTENT_PATTERNS) {
+    for (const pat of item.patterns) {
+      if (pat.test(rawText)) {
+        return {
+          intent: item.id,
+          detectedLoc,
+          detectedVehicle,
+          responseText: item.response
+        };
+      }
+    }
   }
 
-  // Build conversational greeting response
-  if (intent === 'greetings') {
+  // 2. Greetings intent
+  if (/\b(hi|hello|hey|greetings|good morning|hola|howdy|whats up)\b/i.test(rawText)) {
+    const stateName = countryData.states[targetState]?.name || "Tamil Nadu";
     return {
-      intent,
+      intent: 'greetings',
       detectedLoc,
       detectedVehicle,
-      responseText: `Hello! I'm **DriveLegal**, your AI assistant for road safety. 
-I detected you might be located in or querying about **${countryData.name}${targetState ? ' (' + (countryData.states[targetState]?.name || targetState) + ')' : ''}**.
-
-Here's what I can do for you completely offline:
-* ⚖️ **Calculate fines** (e.g., *"How much is the seatbelt fine in California?"*)
-* 🏍️ **Vehicle-specific citations** (e.g., *"Commercial truck speeding fines in Delhi"*)
-* 🚨 **Show Emergency hotlines** (e.g., *"Give me emergency roadside numbers in the UK"*)
-* ✍️ **Gamified Knowledge Quiz** (ask about the quiz to test your driving awareness!)
-
-What traffic rule or fine would you like to lookup?`
+      responseText: `Hello! I'm **DriveLegal AI**, your verified road compliance copilot. I am tuned to **India (Motor Vehicles Act)** for **${stateName}**.\n\nHere are legal queries I can answer for you:\n* ⚖️ **Calculate fines** (e.g., *"What is the fine for speeding or red light violation?"*)\n* 📱 **Citizen Rights** (e.g., *"Is DigiLocker valid for police check?"*)\n* 👮 **Police Stops** (e.g., *"Can police snatch my bike keys or seize my phone?"*)\n* 💳 **Challan Procedures** (e.g., *"How do I dispute a wrong challan online?"*)\n* 🚨 **Emergency Hotlines** (e.g., *"Give me police and ambulance numbers"*)\n\nWhat traffic guideline or situation can I help you with?`
     };
   }
 
-  // Emergency inquiries
-  if (intent === 'emergency') {
+  // 3. Emergency intent
+  if (/\b(emergency|accident|help|tow|ambulance|police|crash|hospital|breakdown|flat tire|hotline)\b/i.test(rawText)) {
     const emergencyInfo = countryData.states[targetState]?.emergency || countryData.defaultEmergency;
-    const locString = targetState ? `${countryData.states[targetState]?.name}, ${countryData.name}` : countryData.name;
+    const stateName = countryData.states[targetState]?.name || "Tamil Nadu";
     return {
-      intent,
+      intent: 'emergency',
       detectedLoc,
-      responseText: `🚨 **EMERGENCY ROADSIDE SERVICES PROTOCOL - ${locString.toUpperCase()}** 🚨
-
-If you are involved in a traffic accident or vehicle breakdown, please pull over safely, switch on hazard warnings, and use the following local emergency services:
-* 📞 **Police (Emergency)**: \`${emergencyInfo.police}\`
-* 🚑 **Medical/Ambulance**: \`${emergencyInfo.ambulance}\`
-* 🚒 **Fire Brigade**: \`${emergencyInfo.fire || '112'}\`
-* 🚧 **National Highway Patrol**: \`${emergencyInfo.highwayPatrol}\`
-
-*Safety Tip: If on a highway, stand behind the crash barrier on the shoulder side, keeping a safe distance from active traffic lanes while waiting for help.*`
+      responseText: `🚨 **EMERGENCY ROADSIDE SERVICES PROTOCOL - ${stateName.toUpperCase()}, INDIA** 🚨\n\nIf you are involved in a traffic accident or highway breakdown, pull over immediately, turn on hazard warning lights, and call:\n* 📞 **National Emergency Number**: \`112\` (Direct Police & First Responders)\n* 🚑 **Medical / Ambulance**: \`${emergencyInfo.ambulance || '102'}\`\n* 🚒 **Fire Brigade**: \`${emergencyInfo.fire || '101'}\`\n* 🚧 **National Highway Patrol**: \`${emergencyInfo.highwayPatrol || '1033'}\`\n\n*Safety Advisory: Under Section 134A MVA (Good Samaritan Law), anyone who provides first aid or rushes an accident victim to a hospital is protected from police questioning or harassment.*`
     };
   }
 
-  // Quiz queries
-  if (intent === 'quiz_query') {
-    return {
-      intent,
-      responseText: `🏆 **DriveLegal Road Safety Awareness Quiz** 🏆
-
-Would you like to test your understanding of traffic regulations? Head over to the **Safety Quiz** tab on the navigation dashboard! 
-
-Participating in the quiz helps you:
-1. Learn crucial local traffic signals and signs.
-2. Avoid expensive challans by understanding demerit points and safety margins.
-3. Earn collectible **Driver Badges** (like *Defensive Driver Master* or *Law-Abiding Citizen*) directly in your profile!
-
-Let me know if you have questions about specific rules (e.g. *"What is the limit for drunk driving in Scotland?"*) and I'll explain them right here!`
-    };
-  }
-
-  // Keyword-matching search of laws in the active country
+  // 4. Exact statutory rule matching from lawDatabase
   let bestMatchRule = null;
   let highestScore = 0;
-  let matchedCategoryKey = '';
 
-  // Look through categories
   for (const [catKey, category] of Object.entries(countryData.categories)) {
     for (const rule of category.rules) {
       let score = 0;
-
-      // 1. Text match score on Title
       const titleTokens = tokenize(rule.title);
       for (const t of tokens) {
         if (titleTokens.includes(t)) score += 3;
       }
-
-      // 2. Text match score on Description
       const descTokens = tokenize(rule.description);
       for (const t of tokens) {
         if (descTokens.includes(t)) score += 1.5;
       }
-
-      // 3. Category match boost
-      if (detectedViolations.includes(catKey)) {
-        score += 5;
-      }
-
-      // 4. Vehicle matches boost/filter
       if (detectedVehicle) {
         if (rule.vehicleTypes.includes(detectedVehicle) || rule.vehicleTypes.includes('all')) {
           score += 2;
         } else {
-          score -= 3; // penalize mismatch (e.g. asking for car speeding but matching two-wheeler rules)
+          score -= 2;
         }
       }
-
       if (score > highestScore) {
         highestScore = score;
         bestMatchRule = rule;
-        matchedCategoryKey = catKey;
       }
     }
   }
 
-  // If a solid match is found (score threshold > 3)
-  if (bestMatchRule && highestScore > 3) {
-    const symbol = countryData.symbol;
+  if (bestMatchRule && highestScore >= 3) {
+    const symbol = "₹";
     let baseFine = bestMatchRule.baseFine;
     let desc = bestMatchRule.description;
-    let hasStateOverride = false;
     let overrideText = '';
 
-    // Apply state-specific factor and overrides
     if (targetState && bestMatchRule.stateOverrides && bestMatchRule.stateOverrides[targetState]) {
       const override = bestMatchRule.stateOverrides[targetState];
       baseFine = override.baseFine !== undefined ? override.baseFine : baseFine;
       desc = override.description !== undefined ? override.description : desc;
-      hasStateOverride = true;
-      overrideText = `*(State amendment applied for **${countryData.states[targetState].name}**)*`;
-    } else if (targetState && countryData.states[targetState]) {
-      // General state adjustments
-      const stateObj = countryData.states[targetState];
-      if (stateObj.factor !== 1.0) {
-        baseFine = Math.round(baseFine * stateObj.factor);
-        overrideText = `*(Calculated base with a local indexing factor of ${stateObj.factor} for **${stateObj.name}**)*`;
-      }
+      overrideText = `*(State amendment applied for **${countryData.states[targetState]?.name || targetState}**)*`;
     }
 
-    const citationText = `⚖️ **Legal Citation:** \`${bestMatchRule.section}\``;
-    const fineText = baseFine > 0 
-      ? `💵 **Compounding Fine:** **${symbol}${baseFine.toLocaleString()}** ${overrideText}`
-      : `💵 **Fine Structure:** Non-monetary penalty / Subject to warning / Court appearance`;
-
-    const pointsText = bestMatchRule.points > 0
-      ? `⚠️ **Demerit Penalty:** **${bestMatchRule.points} Points** on your driving record.`
-      : '';
-
-    let extraWarning = '';
-    if (bestMatchRule.points >= 6 || baseFine >= 5000 || (targetCountry === 'US' && bestMatchRule.id.includes('dui')) || (targetCountry === 'UK' && bestMatchRule.id.includes('drink'))) {
-      extraWarning = `\n\n> [!WARNING]
-> **HIGH SEVERITY OFFENSE**: This violation is classified as critical. It involves an immediate risk of license suspension, vehicle impoundment, or jail time. Drive defensively!`;
-    }
-
-    const vehicleScope = bestMatchRule.vehicleTypes.includes('all') 
-      ? "All Vehicle Types" 
+    const stateName = countryData.states[targetState]?.name || "Tamil Nadu";
+    const vehicleScope = bestMatchRule.vehicleTypes.includes('all')
+      ? "All Vehicle Classes"
       : bestMatchRule.vehicleTypes.map(v => v.toUpperCase()).join(", ");
 
     return {
-      intent,
+      intent: 'rule_match',
       detectedLoc,
       detectedVehicle,
       ruleMatched: bestMatchRule,
-      responseText: `### Traffic Violation Analysis: ${bestMatchRule.title}
+      responseText: `### 🛡️ Statutory Violation Analysis: ${bestMatchRule.title}
 
-Here is the location-specific legal standing in **${countryData.states[targetState]?.name || countryData.name}** for **${vehicleScope}**:
+Here is the statutory legal standing under the **Motor Vehicles Act** in **${stateName}, India** for **${vehicleScope}**:
 
-*   ${citationText}
-*   ${fineText}
-*   ${pointsText}
+* ⚖️ **Legal Section:** \`${bestMatchRule.section}\`
+* 💵 **Compounding Fine:** **${symbol}${baseFine.toLocaleString()}** ${overrideText}
+* ⚠️ **Demerit Record:** **${bestMatchRule.points} Points** (Direct citation docket)
+* 🚗 **Target Vehicles:** ${vehicleScope}
 
-**Details & Provisions:**
+**Statutory Provision & Enforcement Details:**
 ${desc}
 
-*Remember: Staying compliant with traffic rules ensures your safety, protects pedestrians, and keeps your driving record completely clean.*${extraWarning}`
+**Driver Guidance:**
+Always carry verified credentials via DigiLocker or mParivahan. Ensure vehicle equipment meets Central Motor Vehicles Rules (CMVR) compliance to prevent spot compound notices or license disqualification.`
     };
   }
 
-  // Fallback for general queries without exact matches
-  const locationString = targetState ? `${countryData.states[targetState].name}, ${countryData.name}` : countryData.name;
+  // 5. Intelligent Fallback for general queries
+  const stateName = countryData.states[targetState]?.name || "Tamil Nadu";
   return {
-    intent,
+    intent: 'general_guidance',
     detectedLoc,
     detectedVehicle,
-    responseText: `I analyzed your query regarding **${locationString}** but couldn't find an exact statutory matching code in our local database. 
+    responseText: `### 📋 Traffic Compliance Guidance (${stateName}, India)
 
-However, let's look at the general rules:
-1. **Speed Limits**: Always adhere to posted limits. Standard limits in urban environments are 30-50 km/h in India, 25-35 mph in residential US zones, and 20-30 mph in metropolitan UK areas.
-2. **Safety Measures**: Wearing helmets for two-wheelers and seatbelts for all passengers in passenger vehicles is universally mandatory and strictly enforced in **${countryData.name}**.
-3. **Sobriety**: Drunk driving is treated as a highly critical criminal offense across all regions with severe penalties.
+I analyzed your query regarding **${rawText}**. Here are the applicable statutory road regulations under the **Motor Vehicles Act (MVA)**:
 
-Would you mind rephrasing your question or selecting the **Challan Calculator** or **Law Explorer** above to view our fully indexed lists of rules?`
+1. **Speed & Lane Discipline**: Section 183 MVA enforces speed limits. Fines range from **₹1,000** for Light Motor Vehicles (cars) up to **₹2,000–₹4,000** for commercial transport.
+2. **Safety Gear**: Wearing a BIS-certified helmet with chin strap securely fastened is mandatory for both rider and pillion (**₹1,000 fine + 3-month license disqualification** under Section 194D). Front and rear seatbelts are mandatory for four-wheelers (**₹1,000** under Section 194B).
+3. **Valid Documentation**: Ensure your **Driving License**, **RC**, **Insurance**, and **PUC** are up-to-date. Digital copies in government **DigiLocker** or **mParivahan** are 100% legally recognized by traffic enforcement.
+4. **Zero Tolerance Violations**: Drunk driving (BAC > 30mg/100ml) incurs a **₹10,000 fine and up to 6 months jail** (Section 185). Red light jumping and rash driving incur **₹5,000** (Section 184).
+
+*Would you like to calculate an exact fine in the **Challan Calculator** or lookup specific legal sections in the **Law Explorer**?*`
   };
 }
 
-/**
- * Quantum-Inspired State Measurement Filter
- * Models generative text as a superposition of semantic possibilities,
- * collapsing it against verified database states to completely eliminate numerical hallucinations.
- */
 export function applyQuantumStateCollapse(synthesizedText, verifiedFacts) {
   if (!synthesizedText) return "";
   if (!verifiedFacts || verifiedFacts.length === 0) return synthesizedText;
-
-  // Extract all numerical eigenvalues (e.g. fine amounts, points, codes)
   const numberRegex = /(\d+(?:,\d+)*(?:\.\d+)?)/g;
   const generatedNumbers = synthesizedText.match(numberRegex) || [];
-  
-  // Combine all verified facts into a single observable measurement boundary
   const observableFactsText = Array.isArray(verifiedFacts) ? verifiedFacts.join(" ") : verifiedFacts;
   const verifiedNumbers = observableFactsText.match(numberRegex) || [];
   const verifiedNumbersSet = new Set(verifiedNumbers);
-
   let collapsedText = synthesizedText;
-
-  // Measurement Phase: Validate numerical eigenvalues
   for (const num of generatedNumbers) {
-    // If a numerical value has zero overlap with the verified facts, collapse it to the nearest verified value
     if (!verifiedNumbersSet.has(num)) {
       const genVal = parseFloat(num.replace(/,/g, ''));
       let nearestVal = null;
       let minDiff = Infinity;
-
       for (const vNum of verifiedNumbers) {
         const vVal = parseFloat(vNum.replace(/,/g, ''));
         const diff = Math.abs(genVal - vVal);
@@ -440,15 +429,12 @@ export function applyQuantumStateCollapse(synthesizedText, verifiedFacts) {
           nearestVal = vNum;
         }
       }
-
       if (nearestVal !== null && minDiff !== Infinity) {
-        // Probabilistic State Collapse: Correct the hallucinated numerical value
         const escapedNum = num.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         const numRegex = new RegExp(`\\b${escapedNum}\\b`, 'g');
         collapsedText = collapsedText.replace(numRegex, `${nearestVal} [Collapsed Fact: Corrected from ${num}]`);
       }
     }
   }
-
   return collapsedText;
 }

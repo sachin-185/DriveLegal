@@ -3,8 +3,6 @@ import { CloudClient } from 'chromadb';
 import { lawDatabase } from './src/data/lawDatabase.js';
 
 dotenv.config();
-
-// Initialize Chroma Cloud Client
 const chromaClient = new CloudClient({
   apiKey: process.env.CHROMA_API_KEY,
   tenant: process.env.CHROMA_TENANT,
@@ -12,75 +10,55 @@ const chromaClient = new CloudClient({
 });
 
 async function seed() {
-  console.log("=========================================");
-  console.log("⚡ STARTING CHROMADB COMPLIANCE AUTO-SEEDER");
-  console.log("=========================================");
-
+  console.info("STARTING CHROMADB COMPLIANCE AUTO-SEEDER");
   try {
     const version = await chromaClient.version();
-    console.log(`[Chroma] Connected to cloud. DB Engine Version: ${version}`);
-
-    // Retrieve or create the collection
+    console.info(`[Chroma] Connected to cloud. DB Engine Version: ${version}`);
     const collection = await chromaClient.getOrCreateCollection({
       name: "myCollection"
     });
 
     const initialCount = await collection.count();
-    console.log(`[Chroma] Collection 'myCollection' currently has ${initialCount} indexed documents.`);
-
-    if (initialCount > 0) {
-      console.log("[Chroma] Vector indexes already populated. Skipping auto-seeding.");
-      return;
-    }
-    console.log("[Chroma] Auto-indexing all regulatory schemas from lawDatabase.js...");
+    console.loinfog(`[Chroma] Collection 'myCollection' currently has ${initialCount} indexed documents.`);
+    console.info("[Chroma] Packaging all regulatory schemas from lawDatabase.js...");
     const ids = [];
     const documents = [];
     const metadatas = [];
-    // Map through countries, categories, and rules to generate vector grounding nodes
+
     Object.entries(lawDatabase.countries).forEach(([countryCode, country]) => {
       Object.entries(country.categories).forEach(([categoryKey, category]) => {
         category.rules.forEach((rule) => {
-          // Construct high-fidelity, grounded text block for embedding semantic index matching
-          const docText = `Country Jurisdiction: ${country.name} (${countryCode})
-Violation Category: ${category.name} (${categoryKey})
-Official Title: ${rule.title}
-Legal Statutory Citation: ${rule.section}
-Base Fine Penalty: ${country.symbol}${rule.baseFine} (${country.currency})
-Demerit Points Added: ${rule.points} points
-Applicable Vehicle Scope: ${rule.vehicleTypes.join(", ")}
-Detailed Provision: ${rule.description}`;
-
+          const docText = `Country Jurisdiction: ${country.name} (${countryCode})\nViolation Category: ${category.name} (${categoryKey})\nOfficial Title: ${rule.title}\nLegal Statutory Citation: ${rule.section}\nBase Fine Penalty: ${country.symbol}${rule.baseFine} (${country.currency})\nDemerit Points Added: ${rule.points} points\nApplicable Vehicle Scope: ${rule.vehicleTypes.join(", ")}\nDetailed Provision: ${rule.description}`;
           ids.push(rule.id);
           documents.push(docText);
           metadatas.push({
-            country: countryCode,
-            category: categoryKey,
-            ruleId: rule.id,
-            section: rule.section,
+            country: countryCode, category: categoryKey,
+            ruleId: rule.id, section: rule.section,
             type: "regulatory_fact"
           });
         });
       });
     });
 
-    console.log(`[Chroma] Packing batch of ${ids.length} vector nodes for upload...`);
-
-    // Bulk upload vectors to ChromaDB Cloud
-    await collection.add({
-      ids,
-      documents,
-      metadatas
+    console.info(`[Chroma] Upserting batch of ${ids.length} regulatory vector documents...`);
+    // Upsert replaces existing or adds new rules, ensuring clean and accurate indexes
+    await collection.upsert({
+      ids, documents, metadatas
     });
+    // Clean up any old dummy test documents if present
+    try {
+      await collection.delete({
+        where: { type: { "$ne": "regulatory_fact" } }
+      });
+    } catch (cleanErr) {
+      // Ignore if metadata filter is not supported
+    }
 
     const finalCount = await collection.count();
-    console.log(`=========================================`);
-    console.log(`✅ AUTO-SEEDING COMPLETED SUCCESSFULY!`);
-    console.log(`Indexed ${finalCount} compliance dockets in vector database.`);
-    console.log(`=========================================`);
-
+    console.info(`AUTO-SEEDING COMPLETED SUCCESSFULLY!`);
+    console.info(`Indexed ${finalCount} compliance dockets in vector database.`);
   } catch (error) {
-    console.error("❌ Auto-seeding execution failed:", error);
+    console.error("Auto-seeding execution failed:", error);
   }
+  seed();
 }
-
-seed();

@@ -4,11 +4,9 @@ import App from './App.jsx';
 import './index.css';
 import * as serviceWorker from './registerServiceWorker';
 import './utils/firebase.js';
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
 serviceWorker.register();
